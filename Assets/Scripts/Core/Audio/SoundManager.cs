@@ -5,11 +5,13 @@ using UnityEngine.Events;
 
 public sealed class SoundManager : Singleton<SoundManager>
 {
-    private enum AudioChannel
+    private enum AudioType
     {
         BGM,
         SFX,
     }
+
+    public bool isDebugging = false;
 
     private readonly string bgmVolumeKey = "BGM Volume";
     private readonly string sfxVolumeKey = "SFX Volume";
@@ -17,211 +19,277 @@ public sealed class SoundManager : Singleton<SoundManager>
     private readonly string bgmFilePath = "Audio/BGM";
     private readonly string sfxFilePath = "Audio/SFX";
 
-    private readonly Dictionary<AudioChannel, AudioSource> channels = new Dictionary<AudioChannel, AudioSource>();
-    private readonly Dictionary<AudioChannel, Dictionary<string, Audio>> audioBank = new Dictionary<AudioChannel, Dictionary<string, Audio>>();
+    private readonly Dictionary<AudioType, AudioSource> speakers = new Dictionary<AudioType, AudioSource>();
+    private readonly Dictionary<AudioType, Dictionary<string, Audio>> audioBank = new Dictionary<AudioType, Dictionary<string, Audio>>();
 
-    public AudioSource bgmChannel => channels.ContainsKey(AudioChannel.BGM) ? channels[AudioChannel.BGM] : InitAudioChannel(AudioChannel.BGM);
-    public AudioSource sfxChannel => channels.ContainsKey(AudioChannel.SFX) ? channels[AudioChannel.SFX] : InitAudioChannel(AudioChannel.SFX);
+    public AudioSource bgmSpeaker
+    {
+        get
+        {
+            if (!speakers.ContainsKey(AudioType.BGM))
+                SetAudioSpeaker(AudioType.BGM);
 
-    public Dictionary<string, Audio> bgmBank => audioBank.ContainsKey(AudioChannel.BGM) ? audioBank[AudioChannel.BGM] : InitAudioBank(AudioChannel.BGM);
-    public Dictionary<string, Audio> sfxBank => audioBank.ContainsKey(AudioChannel.SFX) ? audioBank[AudioChannel.SFX] : InitAudioBank(AudioChannel.SFX);
+            return speakers[AudioType.BGM];
+        }
+    }
+
+    public AudioSource sfxSpeaker
+    {
+        get
+        {
+            if (!speakers.ContainsKey(AudioType.SFX))
+                SetAudioSpeaker(AudioType.SFX);
+
+            return speakers[AudioType.SFX];
+        }
+    }
+
+    public Dictionary<string, Audio> bgmBank
+    {
+        get
+        {
+            if (!audioBank.ContainsKey(AudioType.BGM))
+            {
+                audioBank.Add(AudioType.BGM, new Dictionary<string, Audio>());
+
+                foreach (var audio in Resources.LoadAll<Audio>(bgmFilePath))
+                    audioBank[AudioType.BGM].Add(audio.audioName, audio);
+            }
+
+            return audioBank[AudioType.BGM];
+        }
+    }
+
+    public Dictionary<string, Audio> sfxBank
+    {
+        get
+        {
+            if (!audioBank.ContainsKey(AudioType.SFX))
+            {
+                audioBank.Add(AudioType.SFX, new Dictionary<string, Audio>());
+
+                foreach (var audio in Resources.LoadAll<Audio>(sfxFilePath))
+                    audioBank[AudioType.SFX].Add(audio.audioName, audio);
+            }
+
+            return audioBank[AudioType.SFX];
+        }
+    }
 
     public float bgmVolume
     {
-        get => PlayerPrefs.HasKey(bgmVolumeKey) ? PlayerPrefs.GetFloat(bgmVolumeKey) : InitAudioVolume(AudioChannel.BGM, 0.5f);
-        set => InitAudioVolume(AudioChannel.BGM, value);
+        get => bgmSpeaker.volume;
+        set => bgmSpeaker.volume = value;
     }
+
     public float sfxVolume
     {
-        get => PlayerPrefs.HasKey(sfxVolumeKey) ? PlayerPrefs.GetFloat(sfxVolumeKey) : InitAudioVolume(AudioChannel.SFX, 0.5f);
-        set => InitAudioVolume(AudioChannel.SFX, value);
+        get => sfxSpeaker.volume;
+        set => sfxSpeaker.volume = value;
     }
 
     public BGM curPlayBGM { get; private set; }
     public SFX curPlaySFX { get; private set; }
 
-    private void Reset()
-    {
-        InitAudioChannel(AudioChannel.BGM);
-        InitAudioChannel(AudioChannel.SFX);
-
-        InitAudioBank(AudioChannel.BGM);
-        InitAudioBank(AudioChannel.SFX);
-    }
-
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
+
+        for (var type = AudioType.BGM; type >= AudioType.SFX; ++type)
+        {
+            SetAudioSpeaker(type);
+            SetAudioBank(type);
+        }
     }
 
     private void Update()
     {
-        if (curPlayBGM)
+        if (!isDebugging)
         {
-            if (curPlayBGM.isLoop)
+            if (curPlayBGM)
             {
-                if (bgmChannel.time >= curPlayBGM.loopEnd)
-                    bgmChannel.time = curPlayBGM.loopStart;
+                if (curPlayBGM.isLoop)
+                {
+                    if (bgmSpeaker.time >= curPlayBGM.loopEnd)
+                        bgmSpeaker.time = curPlayBGM.loopStart;
+                }
             }
         }
     }
 
-    private Dictionary<string, Audio> InitAudioBank(AudioChannel channel)
+    protected override void OnApplicationQuit()
     {
-        if (!audioBank.ContainsKey(channel))
-            audioBank.Add(channel, new Dictionary<string, Audio>());
+        base.OnApplicationQuit();
 
-        if (audioBank[channel].Count <= 0)
+        for (var type = AudioType.BGM; type >= AudioType.SFX; ++type)
+            SaveAudioVolume(type);
+    }
+
+    private void SetAudioSpeaker(AudioType type)
+    {
+        if (!speakers.ContainsKey(type))
         {
-            var audioFilePath = channel == AudioChannel.BGM ? bgmFilePath : sfxFilePath;
+            speakers.Add(type, gameObject.AddComponent<AudioSource>());
 
-            foreach (var audio in Resources.LoadAll<Audio>(audioFilePath))
-                audioBank[channel].Add(audio.audioName, audio);
-
+            speakers[type].volume = SetAudioVolume(type);
+            speakers[type].playOnAwake = false;
         }
-
-        Debug.Log($"{channel} 파일 할당 완료!... 개수: {audioBank[channel].Count}");
-
-        return audioBank[channel];
     }
 
-    private AudioSource InitAudioChannel(AudioChannel channel)
+    private void SetAudioBank(AudioType type)
     {
-        if (!channels.ContainsKey(channel))
+        if (!audioBank.ContainsKey(type))
         {
-            var newChannel = gameObject.AddComponent<AudioSource>();
+            var path = type == AudioType.BGM ? bgmFilePath : sfxFilePath;
 
-            newChannel.playOnAwake = false;
-            newChannel.volume = channel == AudioChannel.BGM ? bgmVolume : sfxVolume;
+            audioBank.Add(type, new Dictionary<string, Audio>());
 
-            channels.Add(channel, newChannel);
+            foreach (var audio in Resources.LoadAll<Audio>(path))
+                audioBank[type].Add(audio.audioName, audio);
         }
-
-        return channels[channel];
     }
 
-    private float InitAudioVolume(AudioChannel channel, float volume)
+    private float SetAudioVolume(AudioType type)
     {
-        var volumeKey = channel == AudioChannel.BGM ? bgmVolumeKey : sfxVolumeKey;
+        var key = type == AudioType.BGM ? bgmVolumeKey : sfxVolumeKey;
 
-        PlayerPrefs.SetFloat(volumeKey, volume);
+        if (PlayerPrefs.HasKey(key))
+            PlayerPrefs.GetFloat(key);
 
-        return PlayerPrefs.GetFloat(volumeKey);
+        return 0.5f;
     }
 
-    private void PlayBGM()
+    private void SaveAudioVolume(AudioType type)
     {
-        if (bgmChannel.clip)
-            bgmChannel.Play();
-    }
+        var key = type == AudioType.BGM ? bgmVolumeKey : sfxVolumeKey;
+        var volume = type == AudioType.BGM ? bgmSpeaker.volume : sfxSpeaker.volume;
 
-    private void PlayBGM(BGM bgm)
-    {
-        if (curPlayBGM != bgm)
-        {
-            bgmChannel.clip = bgm.audio;
-            bgmChannel.Play();
-
-            curPlayBGM = bgm;
-        }
+        PlayerPrefs.SetFloat(key, volume);
     }
 
     public void PlayBGM(string name)
     {
         if (bgmBank.ContainsKey(name))
-            PlayBGM(bgmBank[name] as BGM);
+        {
+            StopBGM();
+
+            var bgm = curPlayBGM = bgmBank[name] as BGM;
+
+            bgmSpeaker.clip = bgm.audio;
+            bgmSpeaker.Play();
+        }
+    }
+
+    public void PlayBGM(AudioSource audio)
+    {
+        foreach (var elem in bgmBank.Values)
+        {
+            if (elem.audio == audio)
+            {
+                StopBGM();
+
+                var bgm = curPlayBGM = bgmBank[name] as BGM;
+
+                bgmSpeaker.clip = bgm.audio;
+                bgmSpeaker.Play();
+
+                break;
+            }
+        }
+    }
+
+    public void PlayBGM(BGM audio)
+    {
+        foreach (var elem in bgmBank.Values)
+        {
+            if ((elem.audio == audio.audio) && (elem.audioName == audio.audioName))
+            {
+                StopBGM();
+
+                var bgm = curPlayBGM = bgmBank[name] as BGM;
+
+                bgmSpeaker.clip = bgm.audio;
+                bgmSpeaker.Play();
+
+                break;
+            }
+        }
+    }
+
+    public void PlayBGMOneShot(string name)
+    {
+        if (bgmBank.ContainsKey(name))
+        {
+            StopBGM();
+
+            bgmSpeaker.PlayOneShot((curPlayBGM = bgmBank[name] as BGM).audio);
+        }
     }
 
     public void PauseBGM()
     {
-        if (bgmChannel.isPlaying)
-            bgmChannel.Pause();
+        if (bgmSpeaker.isPlaying)
+            bgmSpeaker.Pause();
     }
 
     public void StopBGM()
     {
-        if (bgmChannel.isPlaying)
-            bgmChannel.Stop();
-    }
-
-    private void PlaySFX()
-    {
-        if (sfxChannel.clip)
-            sfxChannel.Play();
-    }
-
-    private void PlaySFX(SFX sfx)
-    {
-        if (curPlaySFX != sfx)
-        {
-            sfxChannel.clip = sfx.audio;
-            
-            curPlaySFX = sfx;
-        }
-
-        sfxChannel.Play();
-    }
-
-    private IEnumerator PlaySpecialSFX(SFX sfx)
-    {
-        PauseBGM();
-        
-        PlaySFX(sfx);
-
-        yield return new WaitForSeconds(curPlaySFX.audio.length);
-
-        StartCoroutine(FadeInBGM(2.0f));
+        if (bgmSpeaker.isPlaying)
+            bgmSpeaker.Stop();
     }
 
     public void PlaySFX(string name)
     {
         if (sfxBank.ContainsKey(name))
         {
-            var sfx = sfxBank[name] as SFX;
+            StopSFX();
 
-            if (sfx.isSpecial)
-                StartCoroutine(PlaySpecialSFX(sfx));
+            var sfx = curPlaySFX = sfxBank[name] as SFX;
 
-            else
-                PlaySFX(sfx);
+            sfxSpeaker.clip = sfx.audio;
+            sfxSpeaker.Play();
         }
     }
 
-    public IEnumerator FadeOutBGM(float time)
+    public void PlaySFX(AudioSource audio)
     {
-        if (bgmChannel.isPlaying)
+        foreach (var elem in sfxBank.Values)
         {
-            while (bgmChannel.volume > 0.0f)
+            if (elem.audio == audio)
             {
-                bgmChannel.volume -= Time.deltaTime / time;
+                StopSFX();
 
-                yield return null;
+                var sfx = curPlaySFX = sfxBank[name] as SFX;
+
+                sfxSpeaker.clip = sfx.audio;
+                sfxSpeaker.Play();
+
+                break;
             }
-
-            bgmChannel.volume = 0.0f;
-
-            PauseBGM();
         }
-
-        yield return null;
     }
 
-    public IEnumerator FadeInBGM(float time)
+    public void PlaySFX(SFX audio)
     {
-        if (!bgmChannel.isPlaying)
+        foreach (var elem in sfxBank.Values)
         {
-            PlayBGM();
-
-            while (bgmChannel.volume > bgmVolume)
+            if ((elem.audio == audio.audio) && (elem.audioName == audio.audioName))
             {
-                bgmChannel.volume += Time.deltaTime / time;
+                StopSFX();
 
-                yield return null;
+                var sfx = curPlaySFX = sfxBank[name] as SFX;
+
+                sfxSpeaker.clip = sfx.audio;
+                sfxSpeaker.Play();
+
+                break;
             }
-
-            bgmChannel.volume = bgmVolume;
         }
+    }
 
-        yield return null;
+    public void StopSFX()
+    {
+        if (sfxSpeaker.isPlaying)
+            sfxSpeaker.Stop();
     }
 }

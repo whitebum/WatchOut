@@ -130,6 +130,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1799848802}
     m_Modifications:
+    - target: {fileID: 1704775000950152034, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
+      propertyPath: curScene
+      value: 
+      objectReference: {fileID: 1799848804}
     - target: {fileID: 4906768949431869149, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_Name
       value: Scene Logo
@@ -200,23 +204,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -35
+      value: -350
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -378,3 +382,21 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2792507651405872132, guid: 56509ade5bfa9c84eb4f92e25c625b09, type: 3}
   m_PrefabInstance: {fileID: 1799848801}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1799848803 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1751383924781516834, guid: 56509ade5bfa9c84eb4f92e25c625b09, type: 3}
+  m_PrefabInstance: {fileID: 1799848801}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1799848804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1799848803}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce483f9bd7505df49af013d688a6263d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneName: "\uBA85\uC608\uC758 \uC804\uB2F9"

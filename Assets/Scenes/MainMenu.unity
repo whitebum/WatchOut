@@ -123,6 +123,50 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &24029813
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 24029815}
+  - component: {fileID: 24029814}
+  m_Layer: 0
+  m_Name: Ranking Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &24029814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 24029813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ac3b6ab5500aec4f9ba6d909c94c82d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &24029815
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 24029813}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &471208338
 GameObject:
   m_ObjectHideFlags: 0
@@ -692,13 +736,17 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1390147616}
     m_Modifications:
+    - target: {fileID: 1704775000950152034, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
+      propertyPath: curScene
+      value: 
+      objectReference: {fileID: 1743271584}
     - target: {fileID: 4906768949431869149, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_Name
       value: Scene Logo
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869149, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_Pivot.x
@@ -766,7 +814,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 322
+      value: -349.99994
       objectReference: {fileID: 0}
     - target: {fileID: 4906768949431869150, guid: 1e404d1cc911b674dbae5d383ddd4125, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -944,6 +992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ab8a58b1e1bf3d42b4805fc5dccc81d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneName: "\uBA54\uC778 \uBA54\uB274"
   menuDialog: {fileID: 1348771848}
   menuButtons:
   - {fileID: 1284597015}

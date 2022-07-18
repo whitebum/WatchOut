@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class BaseScene : MonoBehaviour
 {
-    protected string sceneName = "Unknown Scene";
+    public string sceneName = "Unknown Scene";
 
     protected virtual void Reset()
     {

@@ -7,7 +7,7 @@ using UnityEngine.UI;
 using Random = UnityEngine.Random;
 using SceneCode = SceneManager.SceneCode;
 
-public sealed class MainScene : BaseScene
+public sealed class MainMenu : BaseScene
 {
     private enum Time
     {
@@ -30,8 +30,24 @@ public sealed class MainScene : BaseScene
     };
 
     [SerializeField] private MenuDialog menuDialog;
-
+    
     [SerializeField] private List<BaseButton> menuButtons;
+
+    protected override void Reset()
+    {
+        base.Reset();
+
+        sceneName = "메인 메뉴";
+
+        menuDialog = menuDialog ?? transform.Find("Menu Dialog").TryGetComponent(out menuDialog) ? menuDialog : null;
+    }
+
+    protected override void Awake()
+    {
+        base.Awake();
+
+       
+    }
 
     protected override void Start()
     {

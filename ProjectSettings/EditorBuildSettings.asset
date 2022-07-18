@@ -5,7 +5,25 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/SampleScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 0a984e685162ed140829b7b4e5ea840b
+  - enabled: 1
+    path: Assets/Scenes/HowToGame.unity
+    guid: 3830e05ade2f65d4abff0e9c06ec5fca
+  - enabled: 1
+    path: Assets/Scenes/HallOfFame.unity
+    guid: b540f413fa54c7a4fbae4510c8fd2787
+  - enabled: 1
+    path: Assets/Scenes/SettingConfig.unity
+    guid: ea516454fa72b564ca539bed63ea02ef
+  - enabled: 1
+    path: Assets/Scenes/SoundTest.unity
+    guid: f042b905f4aa0494a8483fa36a4ab8d8
+  - enabled: 1
+    path: Assets/Scenes/GameStage.unity
+    guid: eaeb8b491b620e647b78d9f1acd6034e
   m_configObjects: {}
